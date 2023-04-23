@@ -3,6 +3,7 @@ package com.piatsevich.EmployeeManager.controller;
 import com.piatsevich.EmployeeManager.dto.EmployeeDto;
 import com.piatsevich.EmployeeManager.entity.Employee;
 import com.piatsevich.EmployeeManager.service.impl.EmployeeServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
@@ -28,14 +30,15 @@ public class EmployeeController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
-        Employee employee =  employeeServiceImpl.findById(id);
+        log.info("Request for employee with employee id: {}", id);
+        Employee employee = employeeServiceImpl.findById(id);
 
-        if(employee == null) {
+        if (employee == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         EmployeeDto employeeDto = EmployeeDto.fromEmployee(employee);
-
+        log.info("Returning employee with name: {}", employeeDto.getName());
         return new ResponseEntity<>(employeeDto, HttpStatus.OK);
     }
 
@@ -47,12 +50,13 @@ public class EmployeeController {
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<EmployeeDto>> getAllEmployee() {
+        log.info("Request for employee list");
         List<Employee> employeeList = employeeServiceImpl.findAll();
-
+        log.info("Cannot find employee");
         if (employeeList.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
+        log.info("Returning employee list with size: {}", employeeList.size());
         return new ResponseEntity<>(EmployeeDto.fromEmployees(employeeList), HttpStatus.OK);
     }
 
@@ -65,13 +69,13 @@ public class EmployeeController {
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<EmployeeDto> addNewEmployee(@RequestBody Employee employee) {
-
+        log.info("Request for adding new employee with employee name: {}", employee.getName());
         Employee result = employeeServiceImpl.save(employee);
-
+        log.info("Cannot add new employee with name: {}", employee.getName());
         if (result == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+        log.info("Returning new employee that was added with name: {}", employee.getName());
         return new ResponseEntity<>(EmployeeDto.fromEmployee(result), HttpStatus.OK);
     }
 
@@ -85,10 +89,10 @@ public class EmployeeController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) {
         Employee employeeToSave = EmployeeDto.toEmployee(employeeDto);
-
+        log.info("Request for updating an employee with name: {}", employeeDto.getName());
         Employee updatedEmployee = employeeServiceImpl.updateEmployee(employeeToSave);
         EmployeeDto employee = EmployeeDto.fromEmployee(updatedEmployee);
-
+        log.info("Returning employee that was updated with name: {}", employee.getName());
         return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
@@ -101,11 +105,11 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-
+        log.info("Request for deleting employee with id: {}", id);
         if (!employeeServiceImpl.isExists(id)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+        log.info("Returning status that employee was successful deleted");
         employeeServiceImpl.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
