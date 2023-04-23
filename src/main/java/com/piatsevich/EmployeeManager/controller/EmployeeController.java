@@ -20,12 +20,30 @@ public class EmployeeController {
         this.employeeServiceImpl = employeeServiceImpl;
     }
 
+    /**
+     * Endpoint that returns info about certain employee
+     *
+     * @param id employee id
+     * @return {@link EmployeeDto}
+     */
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
+        Employee employee =  employeeServiceImpl.findById(id);
 
-        return new ResponseEntity<>(EmployeeDto.fromEmployee(employeeServiceImpl.findById(id)), HttpStatus.OK);
+        if(employee == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        EmployeeDto employeeDto = EmployeeDto.fromEmployee(employee);
+
+        return new ResponseEntity<>(employeeDto, HttpStatus.OK);
     }
 
+    /**
+     * Endpoint that returns employee list
+     *
+     * @return list of employees
+     */
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<EmployeeDto>> getAllEmployee() {
@@ -38,12 +56,31 @@ public class EmployeeController {
         return new ResponseEntity<>(EmployeeDto.fromEmployees(employeeList), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint that creates an employee
+     *
+     * @param employee employee
+     * @return {@link EmployeeDto}
+     */
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<EmployeeDto> addNewEmployee(@RequestBody Employee employee) {
-        return new ResponseEntity<>(EmployeeDto.fromEmployee(employeeServiceImpl.save(employee)), HttpStatus.OK);
+
+        Employee result = employeeServiceImpl.save(employee);
+
+        if (result == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(EmployeeDto.fromEmployee(result), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint that updates employee
+     *
+     * @param employeeDto employee
+     * @return {@link EmployeeDto}
+     */
     @PutMapping()
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) {
@@ -55,12 +92,20 @@ public class EmployeeController {
         return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
+    /**
+     * Endpoint that deletes employee
+     *
+     * @param id employee id
+     * @return httpStatus
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+
         if (!employeeServiceImpl.isExists(id)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
         employeeServiceImpl.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

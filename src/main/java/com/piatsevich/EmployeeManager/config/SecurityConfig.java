@@ -12,6 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security config that ensures access to our application only authenticated users,
+ * excepted end-point for login.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -25,7 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
-                .authorizeHttpRequests().requestMatchers("/employees/welcome", "/employees/new")
+                .authorizeHttpRequests().requestMatchers("/employees/login")
                 .permitAll()
                 .and().authorizeHttpRequests().requestMatchers("/employees/**")
                 .authenticated()

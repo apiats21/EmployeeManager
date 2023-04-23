@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Implementation of {@link EmployeeService}
+ * Works with {@link EmployeeRepository}
+ */
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -20,6 +24,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * {@inheritDoc}
+     * For updating employee using method {@link EmployeeRepository#save(Object)}
+     *
+     * @param employee employee
+     * @return {@link Employee}
+     */
     @Override
     public Employee updateEmployee(Employee employee) {
         Employee currentEmployee = employeeRepository.findEmployeeByName(employee.getName()).get();
@@ -28,28 +39,63 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    /**
+     * {@inheritDoc}
+     * For saving employee using method {@link EmployeeRepository#save(Object)}
+     *
+     * @param employee employee from {@link Employee}
+     * @return {@link Employee}
+     */
     @Override
     public Employee save(Employee employee) {
+
+        Employee currentEmployee = employeeRepository.findEmployeeByName(employee.getName()).get();
+        if (currentEmployee.getName() != null) {
+            return null;
+        }
+
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         return employeeRepository.save(employee);
     }
 
+    /**
+     * For getting employees using method {@link EmployeeRepository#findAll()}
+     *
+     * @return list of client
+     */
     @Override
     public List<Employee> findAll() {
         return employeeRepository.findAll();
     }
 
+    /**
+     * For getting employee by id using method {@link EmployeeRepository#findById(Object)}
+     *
+     * @param id clients id
+     * @return {@link Employee}
+     */
     @Override
     public Employee findById(Long id) {
         return employeeRepository.findById(id).get();
     }
 
+    /**
+     * For deleting employee by id using method {@link EmployeeRepository#deleteById(Object)}
+     *
+     * @param id employee id
+     */
     @Override
     public void deleteById(Long id) {
         employeeRepository.deleteById(id);
 
     }
 
+    /**
+     * For checking if employee exsist by id using method{@link EmployeeRepository#existsById(Object)}
+     *
+     * @param id employee id
+     * @return boolean if exist
+     */
     @Override
     public boolean isExists(Long id) {
         return employeeRepository.existsById(id);
