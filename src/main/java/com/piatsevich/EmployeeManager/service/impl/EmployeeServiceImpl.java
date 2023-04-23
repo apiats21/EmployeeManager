@@ -94,7 +94,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteById(Long id) {
         log.info("Deleting employee with id: {} from DB", id);
         employeeRepository.deleteById(id);
-
     }
 
     /**

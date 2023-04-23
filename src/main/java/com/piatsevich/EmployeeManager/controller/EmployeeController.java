@@ -32,11 +32,9 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
         log.info("Request for employee with employee id: {}", id);
         Employee employee = employeeServiceImpl.findById(id);
-
         if (employee == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         EmployeeDto employeeDto = EmployeeDto.fromEmployee(employee);
         log.info("Returning employee with name: {}", employeeDto.getName());
         return new ResponseEntity<>(employeeDto, HttpStatus.OK);
