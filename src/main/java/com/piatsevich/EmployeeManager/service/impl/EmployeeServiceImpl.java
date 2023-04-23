@@ -22,6 +22,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee updateEmployee(Employee employee) {
+        Employee currentEmployee = employeeRepository.findEmployeeByName(employee.getName()).get();
+        employee.setPassword(passwordEncoder.encode(currentEmployee.getPassword()));
+        employee.setId(currentEmployee.getId());
         return employeeRepository.save(employee);
     }
 
@@ -38,11 +41,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee findById(Long id) {
-        return null;
+        return employeeRepository.findById(id).get();
     }
 
     @Override
     public void deleteById(Long id) {
+        employeeRepository.deleteById(id);
 
     }
 

@@ -1,5 +1,6 @@
 package com.piatsevich.EmployeeManager.controller;
 
+import com.piatsevich.EmployeeManager.dto.EmployeeDto;
 import com.piatsevich.EmployeeManager.entity.Employee;
 import com.piatsevich.EmployeeManager.service.impl.EmployeeServiceImpl;
 import org.springframework.http.HttpStatus;
@@ -20,26 +21,38 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
-        return new ResponseEntity<>(employeeServiceImpl.findById(id), HttpStatus.OK);
+    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
+
+        return new ResponseEntity<>(EmployeeDto.fromEmployee(employeeServiceImpl.findById(id)), HttpStatus.OK);
     }
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<List<Employee>> getAllEmployee() {
-        return new ResponseEntity<>(employeeServiceImpl.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<EmployeeDto>> getAllEmployee() {
+        List<Employee> employeeList = employeeServiceImpl.findAll();
+
+        if (employeeList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(EmployeeDto.fromEmployees(employeeList), HttpStatus.OK);
     }
 
     @PostMapping("/new")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Employee> addNewEmployee(@RequestBody Employee employee) {
-        return new ResponseEntity<>(employeeServiceImpl.save(employee), HttpStatus.OK);
+    public ResponseEntity<EmployeeDto> addNewEmployee(@RequestBody Employee employee) {
+        return new ResponseEntity<>(EmployeeDto.fromEmployee(employeeServiceImpl.save(employee)), HttpStatus.OK);
     }
 
     @PutMapping()
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
-        return new ResponseEntity<>(employeeServiceImpl.updateEmployee(employee), HttpStatus.OK);
+    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto employeeDto) {
+        Employee employeeToSave = EmployeeDto.toEmployee(employeeDto);
+
+        Employee updatedEmployee = employeeServiceImpl.updateEmployee(employeeToSave);
+        EmployeeDto employee = EmployeeDto.fromEmployee(updatedEmployee);
+
+        return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
